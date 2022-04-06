@@ -5,8 +5,8 @@ import tf
 import math
 import time
 from duckietown_msgs.msg import Twist2DStamped, WheelsCmdStamped
-from apriltags2_ros.msg import AprilTagDetectionArray
-from apriltags2_ros.msg import AprilTagDetection
+from duckietown_msgs.msg import AprilTagDetectionArray
+from duckietown_msgs.msg import AprilTagDetection
 from sensor_msgs.msg import CompressedImage
 
 
@@ -25,14 +25,14 @@ class MyNode():
         self.centre = False
 
     def processTags(self, tags_msg):
-        # print('processTags()')
+        print('processTags()')
         minz = None
         for tag in tags_msg.detections:
-            (r, p, y) = tf.transformations.euler_from_quaternion([tag.pose.pose.pose.orientation.x, tag.pose.pose.pose.orientation.y, tag.pose.pose.pose.orientation.z, tag.pose.pose.pose.orientation.w])
+            (r, p, y) = tf.transformations.euler_from_quaternion([tag.transform.rotation.x, tag.transform.rotation.y, tag.transform.rotation.z, tag.transform.rotation.w])
             #print (y)
-            if tag.pose.pose.pose.position.z < 0.20:
+            if tag.transform.rotation.z < 0.20:
                 self.stop = True
-            if minz is None or tag.pose.pose.pose.position.z < minz:
+            if minz is None or tag.transform.rotation.z < minz:
                 self.yaw = y
             if abs(self.yaw) < 0.15:
                 self.centre = True
@@ -47,7 +47,7 @@ class MyNode():
         
 
     def processImage(self, image_msg):
-        print('processImage()')
+        #print('processImage()')
         self.img = bgr_from_jpg(image_msg.data)
 
     def onStart(self):
