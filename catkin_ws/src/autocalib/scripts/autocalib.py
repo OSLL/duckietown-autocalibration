@@ -43,8 +43,8 @@ class MyNode():
     def step(self, cw = True):
         msg = WheelsCmdStamped()
         rate = rospy.Rate(10) # 1Hz
-        msg.vel_left = -0.0225
-        msg.vel_right = 0.0225
+        msg.vel_left = -0.3
+        msg.vel_right = 0.3
         if cw:
             msg.vel_left, msg.vel_right = msg.vel_right, msg.vel_left
         rospy.loginfo("Publishing message")
@@ -54,6 +54,7 @@ class MyNode():
         msg.vel_right = 0.0
         rospy.loginfo("Publishing message -")
         self.pub.publish(msg)
+        rate.sleep()
         rate.sleep()
 
     def handle_img(self, img):
