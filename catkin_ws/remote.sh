@@ -5,7 +5,7 @@ then
 else
 	source devel/setup.bash
 
-	export ROS_HOSTNAME=10.135.4.166
+	export ROS_HOSTNAME=10.135.4.242
 	export ROS_MASTER_URI=http://$1.local:11311
 	export ROS_MASTER=$1
 	export VEHICLE_NAME=$1

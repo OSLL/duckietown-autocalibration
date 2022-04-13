@@ -29,13 +29,11 @@ class MyNode():
         self.start_process_tags = True
         # print('processTags()')
         minz = None
-        if len(tags_msg.detections) == 0:
-            self.delta += 1
-        else:
-            self.delta = 0
+        if len(tags_msg.detections) > 0:
+            self.delta = time.time()
         for tag in tags_msg.detections:
-            print(f"x = %f y = %f z = %f w = %f" % tuple(x / (2 * math.pi) * 360 for x in (
-            tag.transform.rotation.x, tag.transform.rotation.y, tag.transform.rotation.z, tag.transform.rotation.w)))
+            # print(f"x = %f y = %f z = %f w = %f" % tuple(x / (2 * math.pi) * 360 for x in (
+            # tag.transform.rotation.x, tag.transform.rotation.y, tag.transform.rotation.z, tag.transform.rotation.w)))
             (r, p, y) = tf.transformations.euler_from_quaternion(
                 [tag.transform.rotation.x, tag.transform.rotation.y, tag.transform.rotation.z,
                  tag.transform.rotation.w])
@@ -44,7 +42,7 @@ class MyNode():
                 self.stop = True
             if minz is None or tag.transform.rotation.z < minz:
                 self.yaw = y
-            if abs(self.yaw) < 0.15:
+            if abs(self.yaw) < 0.1:
                 self.centre = True
             # print (r, p, y)
 
@@ -52,7 +50,7 @@ class MyNode():
         msg = WheelsCmdStamped()
         msg.vel_left = vel
         msg.vel_right = vel * self.k
-        rospy.loginfo("Publishing message: {} {}".format(msg.vel_left, msg.vel_right))
+        # rospy.loginfo("Publishing message: {} {}".format(msg.vel_left, msg.vel_right))
         self.pub.publish(msg)
 
     def processImage(self, image_msg):
@@ -66,8 +64,8 @@ class MyNode():
         while not rospy.is_shutdown():
             if not self.start_process_tags:
                 continue
-            msg.vel_left = -0.1
-            msg.vel_right = 0.1
+            msg.vel_left = -0.2
+            msg.vel_right = 0.2
             self.pub.publish(msg)
             time.sleep(0.25)
             msg.vel_left = 0.00
@@ -78,9 +76,13 @@ class MyNode():
                 return
 
     def findWay(self):
+        self.centre = False
         self.onStart()
-        while self.delta < 100:
+        while (time.time() - self.delta) < 3:
             self.sendVel(0.1)
+            time.sleep(0.3)
+            print(self.delta)
+        self.sendVel(0)
 
     def run(self):
         # rate = rospy.Rate(0.6) # 1Hz
@@ -127,6 +129,9 @@ class MyNode():
                 k = 1.0 - (gain_new + gain_old)
                 self.k = k
             if self.truthn >= 3:
+                self.sendVel(-self.vel)
+                time.sleep(3.1)
+                self.sendVel(0)
                 self.findWay()
                 rospy.signal_shutdown('calibration done')
             print('self.k = ', self.k)
