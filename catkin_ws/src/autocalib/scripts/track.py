@@ -32,19 +32,15 @@ class MyNode():
         if len(tags_msg.detections) > 0:
             self.delta = time.time()
         for tag in tags_msg.detections:
-            # print(f"x = %f y = %f z = %f w = %f" % tuple(x / (2 * math.pi) * 360 for x in (
-            # tag.transform.rotation.x, tag.transform.rotation.y, tag.transform.rotation.z, tag.transform.rotation.w)))
             (r, p, y) = tf.transformations.euler_from_quaternion(
                 [tag.transform.rotation.x, tag.transform.rotation.y, tag.transform.rotation.z,
                  tag.transform.rotation.w])
-            # print (y)
             if tag.transform.rotation.z < 0.20:
                 self.stop = True
             if minz is None or tag.transform.rotation.z < minz:
                 self.yaw = y
-            if abs(self.yaw) < 0.1:
+            if abs(self.yaw) < 0.05:
                 self.centre = True
-            # print (r, p, y)
 
     def sendVel(self, vel):
         msg = WheelsCmdStamped()
@@ -79,9 +75,9 @@ class MyNode():
         self.centre = False
         self.onStart()
         while (time.time() - self.delta) < 3:
-            self.sendVel(0.1)
+            self.sendVel(0.2)
             time.sleep(0.3)
-            print(self.delta)
+            print(time.time() - self.delta)
         self.sendVel(0)
 
     def run(self):
@@ -146,6 +142,7 @@ if __name__ == '__main__':
     node = MyNode(node_name='autocalib_node')
     # run node
     time.sleep(1)
+    # node.findWay()
     node.run()
     # keep spinning
     rospy.spin()
