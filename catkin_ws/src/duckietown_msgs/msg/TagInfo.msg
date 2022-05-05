@@ -1,7 +1,7 @@
 Header header
 int32 id
 
-# (StreetName, TrafficSign, Localization, Vehicle…)
+#(StreetName, TrafficSign, Localization, Vehicle)
 uint8 tag_type
 
 uint8 S_NAME=0
@@ -29,6 +29,7 @@ uint8 DO_NOT_ENTER=15
 uint8 PEDESTRIAN=16
 uint8 T_LIGHT_AHEAD=17
 uint8 DUCK_CROSSING=18
+uint8 PARKING=19
 
 string vehicle_name
 
